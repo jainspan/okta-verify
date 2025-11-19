@@ -11,6 +11,11 @@ app.use(express.json());
 const AUTH_HEADER_KEY = process.env.AUTH_HEADER_KEY || 'Authorization';
 const AUTH_HEADER_VALUE = process.env.AUTH_HEADER_VALUE;
 
+app.get('/health', (req, res) => {
+  console.log('[HEALTH]', new Date().toISOString());
+  res.status(200).send('ok');
+});
+
 app.use((req, res, next) => {
   const incoming = req.headers[AUTH_HEADER_KEY.toLowerCase()];
   if (!AUTH_HEADER_VALUE || incoming !== AUTH_HEADER_VALUE) {
