@@ -40,6 +40,27 @@ const activeVerifications = new Map(); // Map<string /* phone */, string /* requ
 app.post('/verify', async (req, res) => {
   try {
     const mp = req.body?.data?.messageProfile || {};
+    const phone = String(mp.phoneNumber);
+    const chan  = String(mp.deliveryChannel || 'SMS');
+    const otp   = String(mp.otpCode || ''); // Okta-generated code
+
+    console.log(`[VERIFY] ${chan} to ${phone} | otpCode: ${otp}`);
+
+    // ... your Verify request here ...
+    return res.status(200).json({
+      commands: [{ type: 'com.okta.telephony.action', value: [{ status: 'ALLOW' }] }]
+    });
+  } catch (e) {
+    console.error('[VERIFY] error:', e?.response || e);
+    return res.status(500).json({ error: 'VERIFY_REQUEST_FAILED' });
+  }
+});
+
+// --- Inline Hook endpoint ---
+/*
+app.post('/verify', async (req, res) => {
+  try {
+    const mp = req.body?.data?.messageProfile || {};
     // Keep E.164 WITH leading '+' for Verify v2
     const number = String(mp.phoneNumber);
     // Okta sends deliveryChannel like 'SMS' or 'VOICE'; Verify expects lowercase.
@@ -51,7 +72,7 @@ app.post('/verify', async (req, res) => {
     res.status(500).send(getErrorResponse('verify', e));
   }
 });
-
+*/
 // --- Start the server ---
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Running on port ${PORT}`));
